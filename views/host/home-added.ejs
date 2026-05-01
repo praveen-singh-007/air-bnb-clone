@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Host Your Home</title>
     <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- 1. Define Settings -->
+    <script>
+        window.UPLOADCARE_PUBLIC_KEY = '6e6dc40288887f5d88e3';
+        window.UPLOADCARE_LOOK_FOR_INPUTS = false; // We will trigger it manually to be safe
+    </script>
+    
+    <!-- 2. Load Library -->
+    <script src="https://cdn.jsdelivr.net/npm/uploadcare-widget@3.x/uploadcare.full.min.js" charset="utf-8"></script>
+
+    <style>
+        /* This ensures the widget has enough space to appear */
+        .uploadcare--widget {
+            background: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ebebeb;
+            min-width: 200px;
+        }
+        .uploadcare--widget__button_type_open {
+            background-color: #ff385c !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -22,37 +45,22 @@
         </div>
     <% } %>
 
-    <form action="/host/<%= editing ? 'edit-home' : 'home-added' %>" method="POST" enctype="multipart/form-data">
+    <form action="/host/<%= editing ? 'edit-home' : 'home-added' %>" method="POST">
         
         <!-- SECTION 1: PHOTO UPLOAD -->
         <div class="form-group" style="margin-bottom: 25px;">
             <label style="display: block; margin-bottom: 10px;">Property Photo <span style="color: #ff385c;">*</span></label>
             
-            <div style="border: 2px dashed #DDDDDD; border-radius: 12px; padding: 20px; text-align: center; background: #F7F7F7; transition: all 0.3s;" id="photo-drop-zone">
-                
-                <img id="photo-preview" 
-                    src="<%= editing ? home.imageURL : '#' %>" 
-                    style="display: <%= editing ? 'block' : 'none' %>; width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;" 
-                    alt="Preview">
-
-                <div id="photo-placeholder" style="display: <%= editing ? 'none' : 'block' %>;">
-                    <span style="font-size: 40px; color: #717171;">📸</span>
-                    <p style="margin: 10px 0; color: #222; font-weight: 600;">Click to upload a photo</p>
-                </div>
-
+            <div style="border: 2px dashed #DDDDDD; border-radius: 12px; padding: 25px; text-align: center; background: #F7F7F7;" id="photo-box">
                 <input 
-                    type="file" 
-                    id="photo-input" 
+                    type="hidden" 
+                    role="uploadcare-uploader" 
                     name="image" 
-                    accept="image/*" 
+                    data-images-only="true"
+                    data-clearable="true"
+                    value="<%= editing ? home.imageUrl : '' %>"
                     <%= editing ? '' : 'required' %>
-                    style="position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none;"
                 >
-                                        
-                <button type="button" onclick="document.getElementById('photo-input').click()" 
-                        style="background: white; border: 1px solid #222; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px;">
-                    <%= editing ? 'Change Photo' : 'Select Photo' %>
-                </button>
             </div>
         </div>
 
@@ -60,31 +68,16 @@
         <div class="form-group" style="margin-bottom: 25px;">
             <label style="display: block; margin-bottom: 10px;">Property Rules (PDF) <span style="color: #ff385c;">*</span></label>
             
-            <div style="border: 2px dashed #DDDDDD; border-radius: 12px; padding: 20px; text-align: center; background: #F7F7F7; transition: all 0.3s;" id="rules-drop-zone">
-                
-                <div id="rules-preview" style="display: none; margin-bottom: 15px;">
-                    <span style="font-size: 40px;">✅</span>
-                    <p id="rules-filename" style="font-weight: 600; color: #008489;"></p>
-                </div>
-
-                <div id="rules-placeholder">
-                    <span style="font-size: 40px; color: #717171;">📄</span>
-                    <p style="margin: 10px 0; color: #222; font-weight: 600;">Click to upload rules (.pdf only)</p>
-                </div>
-
+            <div style="border: 2px dashed #DDDDDD; border-radius: 12px; padding: 25px; text-align: center; background: #F7F7F7;" id="rules-box">
                 <input 
-                    type="file" 
-                    id="rules-input" 
+                    type="hidden" 
+                    role="uploadcare-uploader" 
                     name="rules" 
-                    accept="application/pdf" 
+                    data-file-types="pdf"
+                    data-clearable="true"
+                    value="<%= editing ? home.rulesUrl : '' %>"
                     <%= editing ? '' : 'required' %>
-                    style="position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none;"
                 >
-                                        
-                <button type="button" onclick="document.getElementById('rules-input').click()" 
-                        style="background: white; border: 1px solid #222; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px;">
-                    <%= editing ? 'Change Document' : 'Select Document' %>
-                </button>
             </div>
         </div>
 
@@ -135,38 +128,22 @@
 </div>
 
 <script>
-    // PHOTO LOGIC
-    const photoInput = document.getElementById('photo-input');
-    const photoPreview = document.getElementById('photo-preview');
-    const photoPlaceholder = document.getElementById('photo-placeholder');
-    const photoDropZone = document.getElementById('photo-drop-zone');
+    // Force manual start
+    document.addEventListener('DOMContentLoaded', function() {
+        uploadcare.start();
+        
+        // Connect the specific inputs
+        const imageWidget = uploadcare.Widget('[name="image"]');
+        const rulesWidget = uploadcare.Widget('[name="rules"]');
 
-    photoInput.onchange = (evt) => {
-        const [file] = photoInput.files;
-        if (file) {
-            photoPlaceholder.style.display = 'none';
-            photoPreview.style.display = 'block';
-            photoPreview.src = URL.createObjectURL(file);
-            photoDropZone.style.borderColor = '#008489'; 
-        }
-    };
+        imageWidget.onUploadComplete(function(info) {
+            document.getElementById('photo-box').style.borderColor = '#008489';
+        });
 
-    // RULES LOGIC
-    const rulesInput = document.getElementById('rules-input');
-    const rulesPreview = document.getElementById('rules-preview');
-    const rulesPlaceholder = document.getElementById('rules-placeholder');
-    const rulesFilename = document.getElementById('rules-filename');
-    const rulesDropZone = document.getElementById('rules-drop-zone');
-
-    rulesInput.onchange = (evt) => {
-        const [file] = rulesInput.files;
-        if (file) {
-            rulesPlaceholder.style.display = 'none';
-            rulesPreview.style.display = 'block';
-            rulesFilename.innerText = file.name; // Show PDF name
-            rulesDropZone.style.borderColor = '#008489'; 
-        }
-    };
+        rulesWidget.onUploadComplete(function(info) {
+            document.getElementById('rules-box').style.borderColor = '#008489';
+        });
+    });
 </script>
 
 </body>

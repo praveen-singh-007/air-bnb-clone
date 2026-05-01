@@ -146,9 +146,8 @@ exports.getRulesPdf = [
 
         Home.findById(homeID)
             .then(home => {
-                const filePath = path.join(process.cwd(), home.rulesUrl)
-
-                res.download(filePath, 'Rules.pdf');
+                // Simply redirect the user's browser to the Uploadcare URL
+                res.redirect(home.rulesUrl);
             })
             .catch(err => {
                 console.log(err);

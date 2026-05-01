@@ -72,7 +72,7 @@
                 </div>
 
                 <!-- Booking Form -->
-                <form action="/post-bookings" method="POST" style="display: flex; flex-direction: column; gap: 0; margin-bottom: 16px; border: 1px solid #B0B0B0; border-radius: 8px; overflow: hidden;">
+                <form action="/bookings" method="POST" style="display: flex; flex-direction: column; gap: 0; margin-bottom: 16px; border: 1px solid #B0B0B0; border-radius: 8px; overflow: hidden;">
                     <input type="hidden" name="homeID" value="<%= home._id %>">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #B0B0B0;">
                         <div style="padding: 10px; border-right: 1px solid #B0B0B0;">
@@ -106,7 +106,7 @@
 
                 <!-- Rules Download -->
                 <% if (home.rulesUrl) { %>
-                    <a href="/get-rules/<%= home._id %>" style="display: block; width: 100%; background: #F7F7F7; color: #222222; border: 1px solid #DDDDDD; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; text-decoration: none;">
+                    <a href="/download-rules/<%= home._id %>" style="display: block; width: 93%; background: #F7F7F7; color: #222222; border: 1px solid #DDDDDD; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; text-decoration: none;">
                         📄 Download House Rules
                     </a>
                 <% } %>

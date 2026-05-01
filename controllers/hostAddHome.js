@@ -7,45 +7,8 @@ exports.addHomes = (req, res, next) => {
 }
 
 exports.getAddHomes = (req, res, next) => {
-    console.log("req.files:", req.files);
-    console.log("req.body:", req.body);
-    
-    const imageArray = req.files ? req.files['image'] : undefined;
-    const rulesArray = req.files ? req.files['rules'] : undefined;
 
-    console.log("imageArray:", imageArray);
-    console.log("rulesArray:", rulesArray);
-
-    // // Validate that files were uploaded
-    // if (!imageArray || imageArray.length === 0) {
-    //     console.log("Error: No image file uploaded");
-    //     return res.status(400).render("host/home-added", { 
-    //         editing: false, 
-    //         home: req.body,
-    //         error: "Please upload a property photo",
-    //         isLoggedIn: res.locals.isLoggedIn, 
-    //         user: res.locals.user
-    //     });
-    // }
-
-    // if (!rulesArray || rulesArray.length === 0) {
-    //     console.log("Error: No rules file uploaded");
-    //     return res.status(400).render("host/home-added", { 
-    //         editing: false, 
-    //         home: req.body,
-    //         error: "Please upload a property rules PDF",
-    //         isLoggedIn: res.locals.isLoggedIn, 
-    //         user: res.locals.user
-    //     });
-    // }
-
-    const imagePath = imageArray[0].path;
-    const rulesPath = rulesArray[0].path;
-
-    console.log("imagePath:", imagePath);
-    console.log("rulesPath:", rulesPath);
-
-    const {houseName,location, price, description, facing, instructions, contactEmail } = req.body
+    const {houseName,location, price, description, facing, instructions, contactEmail, image, rules } = req.body
     
     const home = new Home({
         houseName, 
@@ -54,8 +17,8 @@ exports.getAddHomes = (req, res, next) => {
         description, 
         facing, 
         instructions,
-        imageUrl: imagePath,
-        rulesUrl : rulesPath,
+        imageUrl: image,
+        rulesUrl : rules,
         contactEmail,
         hostId: req.session.user._id
     });
@@ -67,13 +30,7 @@ exports.getAddHomes = (req, res, next) => {
         })
         .catch(err => {
             console.log("Save error:", err);
-            // res.status(500).render("host/home-added", { 
-            //     editing: false, 
-            //     home: req.body,
-            //     error: "Database Save Failed: " + err.message,
-            //     isLoggedIn: res.locals.isLoggedIn, 
-            //     user: res.locals.user
-            // });
+
         });
 };
 
@@ -107,7 +64,7 @@ exports.getEditHomeList = (req, res, next) => {
 
 exports.postEditHome = (req, res, next) => {
     const homeId = req.body.homeId
-    const { houseName, location, price, description, facing, instructions, contactEmail } = req.body
+    const { houseName, location, price, description, facing, instructions, contactEmail, imageUrl, rulesUrl } = req.body
     
     Home.findById(homeId).then((home) => {
         if (!home) {
@@ -121,30 +78,8 @@ exports.postEditHome = (req, res, next) => {
         home.facing = facing;
         home.instructions = instructions;
         home.contactEmail = contactEmail;
-
-        if (req.files) {
-            // 1. Handle Image Update
-            if (req.files['image']) {
-                const imagePath = req.files['image'][0].path;
-                if (home.imageUrl) {
-                    fs.unlink(home.imageUrl, (err) => {
-                        if (err) console.log("Error deleting old image:", err);
-                    });
-                }
-                home.imageUrl = imagePath;
-            }
-
-            // 2. Handle Rules Update
-            if (req.files['rules']) {
-                const rulesPath = req.files['rules'][0].path;
-                if (home.rulesUrl) {
-                    fs.unlink(home.rulesUrl, (err) => {
-                        if (err) console.log("Error deleting old rules:", err);
-                    });
-                }
-                home.rulesUrl = rulesPath;
-            }
-        }
+        if(imageUrl) home.imageUrl = imageUrl;
+        if(rulesUrl) home.rulesUrl = rulesUrl    
 
         // MOVE REDIRECT INSIDE HERE
         return home.save().then(result => {

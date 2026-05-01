@@ -10,7 +10,7 @@ const error = require("./controllers/error404")
 const path = require("path");
 const { default: mongoose } = require('mongoose');
 
-const multer = require('multer')
+// const multer = require('multer')
 
 const app = express()
 const session = require("express-session")
@@ -20,54 +20,13 @@ app.set('view engine', 'ejs')
 app.set('views', 'views')
 
 
-const randomString = (length)=>{
-    const characters = 'abcdefghijklmnopqrstuvwxyz';
-    file = ""
 
-    for(let i =0; i<length; i++){
-        file += characters.charAt(Math.floor(Math.random()* characters.length))
-    }
-
-    return file
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb)=>{
-
-        if (file.fieldname === 'rules'){
-            cb(null, "rules/")
-        }else{
-        cb(null, "uploads/")
-        }
-    },
-    filename: (res, file, cb)=>{
-        cb(null, randomString(10) + '-' + file.originalname)
-    }
-})
-
-const fileFilter = (req, file, cb)=>{
-    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' || file.mimetype ==='application/pdf'){
-        cb(null, true)
-    }else{
-        cb(null, false)
-    }
-}
-
-const multerOptions = {
-    storage,
-    fileFilter
-}
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))
-app.use(multer(multerOptions).fields([
-    {name :'image', maxCount : 1},
-    {name: 'rules', maxCount : 1}
-]))
+
 app.use("/uploads", express.static(path.join(__dirname, 'uploads')))
 app.use("/host/uploads", express.static(path.join(__dirname, 'uploads')))
 app.use("/home-list/uploads", express.static(path.join(__dirname, 'uploads')))
-
-
 
 
 const DB_URL = process.env.MONGODB_URI;
@@ -117,3 +76,5 @@ mongoose.connect(DB_URL).then(() => {
 }).catch(err => {
     console.log("Error occured", err)
 })
+
+module.exports = app;

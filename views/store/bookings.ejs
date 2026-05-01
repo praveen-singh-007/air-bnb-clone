@@ -22,7 +22,9 @@
                 
                 <% bookedHomes.forEach((booking) => { %>
                     <!-- Note: home data is now inside booking.home -->
-                    <div class="listing-card" style="margin: 0; border: 1px solid #DDDDDD; border-radius: 12px; overflow: hidden;">
+                    <div class="listing-card" style="margin: 0; border: 1px solid #DDDDDD; border-radius: 12px; overflow: hidden;transition: transform 0.2s ease; will-change: transform;"
+    onmouseover="this.style.transform='scale(1.02)'"
+    onmouseout="this.style.transform='scale(1)'">
                         
                         <div class="listing-img" style="height: 220px; width: 100%; overflow: hidden;">
                             <img src="<%= booking.home.imageUrl %>" 

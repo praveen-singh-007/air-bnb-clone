@@ -52,7 +52,7 @@
                         </p>
                     </div>
 
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="display: flex; gap: 10px; margin-top: 10px; height:9%">
                         <a href="/home-list/<%= home._id %>" style="
                             flex: 2;
                             text-align: center;
@@ -66,14 +66,7 @@
                         
                         <form action="/remove-favourites/<%=home._id%>" method="POST" style="flex: 1;">
                             <input type="hidden" name="homeID" value="<%= home._id %>">
-                            <button type="submit" style="
-                                width: 100%;
-                                background: white;
-                                border: 1px solid #DDDDDD;
-                                padding: 10px;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                font-size: 13px;">Remove</button>
+                            <button type="submit" style="flex: 1 1 0%; background: rgb(255, 248, 246); color: rgb(193, 53, 21); border: 1px solid rgb(193, 53, 21); padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s;">Remove</button>
                         </form>
                     </div>
                 </div>
