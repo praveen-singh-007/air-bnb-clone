@@ -44,12 +44,17 @@ exports.getBookings = async (req, res, next)=>{
 
 
 exports.postBookings = async (req, res, next)=>{
+    if(!req.session.user){
+        res.redirect("/login")
+    }
+
     const homeId = req.body.homeID;
     const userId = req.session.user._id;
     const user = await User.findById(userId);   
     const { homeID, startDate, duration, notes } = req.body;
 
     const isAlreadyBooked = user.bookings.some(booked=> booked.toString() === homeId)
+
 
     if(!isAlreadyBooked){
         user.bookings.push({
