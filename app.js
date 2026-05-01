@@ -1,5 +1,3 @@
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
 require('dotenv').config();
 const express = require("express")
 const {userRouter} = require("./routes/userRouter")
@@ -10,16 +8,12 @@ const error = require("./controllers/error404")
 const path = require("path");
 const { default: mongoose } = require('mongoose');
 
-// const multer = require('multer')
-
 const app = express()
 const session = require("express-session")
 const MongodbStore = require("connect-mongodb-session")(session);
 
 app.set('view engine', 'ejs')
 app.set('views', 'views')
-
-
 
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))
@@ -30,21 +24,55 @@ app.use("/home-list/uploads", express.static(path.join(__dirname, 'uploads')))
 
 
 const DB_URL = process.env.MONGODB_URI;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'AirBnb';
+
+// Handle MongoDB connection - singleton pattern
+const connectDB = async () => {
+    // Check if already connected
+    if (mongoose.connection.readyState === 1) {
+        console.log("Already connected to Mongoose");
+        return;
+    }
+    
+    try {
+        await mongoose.connect(DB_URL, {
+            maxPoolSize: 10,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log("Connected to Mongoose");
+    } catch (err) {
+        console.error("MongoDB connection error:", err.message);
+        throw err;
+    }
+};
 
 const store = new MongodbStore({
     uri: DB_URL,
-    collection: 'sessions'
+    collection: 'sessions',
+    expires: 1000 * 60 * 60 * 24 * 7 // 1 week
 });
 
 store.on('error', function(error) {
     console.log('Session store error:', error);
 });
 
+// Determine if running in production (Vercel sets this automatically)
+const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+
 app.use(session({
-    secret: 'AirBnb',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: store
+    store: store,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        httpOnly: true,
+        secure: isProduction, // Only use secure in production
+        sameSite: 'lax'
+    }
 }))
 
 app.use((req, res, next) => {
@@ -66,15 +94,35 @@ app.use(hostRouter)
 
 app.use(error.showError);
 
-const PORT = 3004
+// Global error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Global error:', err);
+    res.status(500).send('Something went wrong!');
+});
 
-mongoose.connect(DB_URL).then(() => {
-    console.log("Connected to Mongoose")
-    app.listen(PORT, () => {
-        console.log(`SERVER RUNNING AT http://localhost:${PORT}`)
-    })
-}).catch(err => {
-    console.log("Error occured", err)
-})
+// Start server
+const startServer = async () => {
+    await connectDB();
+    
+    // Use dynamic port for Vercel
+    const PORT = process.env.PORT || 3004;
+    
+    const server = app.listen(PORT, () => {
+        console.log(`SERVER RUNNING AT http://localhost:${PORT}`);
+    });
+    
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+        console.log('SIGTERM received, shutting down gracefully...');
+        server.close(() => {
+            mongoose.connection.close(false, () => {
+                console.log('Server closed');
+                process.exit(0);
+            });
+        });
+    });
+};
+
+startServer();
 
 module.exports = app;
