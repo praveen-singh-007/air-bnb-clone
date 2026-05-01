@@ -1,53 +1,42 @@
 require('dotenv').config();
-const express = require("express")
-const {userRouter} = require("./routes/userRouter")
-const {hostRouter} = require("./routes/hostRouter")
-const {authRouter} = require("./routes/authRouter")
-const error = require("./controllers/error404")
+const express = require("express");
+const { userRouter } = require("./routes/userRouter");
+const { hostRouter } = require("./routes/hostRouter");
+const { authRouter } = require("./routes/authRouter");
+const error = require("./controllers/error404");
 
 const path = require("path");
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 
-const app = express()
-const session = require("express-session")
+const app = express();
+const session = require("express-session");
 const MongodbStore = require("connect-mongodb-session")(session);
 
-app.set('view engine', 'ejs')
-app.set('views', 'views')
+// Vercel sits behind a proxy, this is required for 'secure' cookies to work
+app.set('trust proxy', 1);
 
-app.use(express.static(path.join(__dirname, 'public')))
-app.use(express.urlencoded({ extended: true }))
+app.set('view engine', 'ejs');
+app.set('views', 'views');
 
-app.use("/uploads", express.static(path.join(__dirname, 'uploads')))
-app.use("/host/uploads", express.static(path.join(__dirname, 'uploads')))
-app.use("/home-list/uploads", express.static(path.join(__dirname, 'uploads')))
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true }));
 
+// Legacy support for local uploads - Optional for Cloud version
+app.use("/uploads", express.static(path.join(__dirname, 'uploads')));
+app.use("/host/uploads", express.static(path.join(__dirname, 'uploads')));
+app.use("/home-list/uploads", express.static(path.join(__dirname, 'uploads')));
 
 const DB_URL = process.env.MONGODB_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'AirBnb';
 
-// Handle MongoDB connection - singleton pattern
-const connectDB = async () => {
-    // Check if already connected
-    if (mongoose.connection.readyState === 1) {
-        console.log("Already connected to Mongoose");
-        return;
-    }
-    
-    try {
-        await mongoose.connect(DB_URL, {
-            maxPoolSize: 10,
-            serverSelectionTimeoutMS: 5000,
-            socketTimeoutMS: 45000,
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        console.log("Connected to Mongoose");
-    } catch (err) {
-        console.error("MongoDB connection error:", err.message);
-        throw err;
-    }
-};
+// Connect to MongoDB immediately
+mongoose.connect(DB_URL, {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+})
+.then(() => console.log("Connected to Mongoose"))
+.catch(err => console.error("MongoDB connection error:", err.message));
 
 const store = new MongodbStore({
     uri: DB_URL,
@@ -70,28 +59,29 @@ app.use(session({
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
         httpOnly: true,
-        secure: isProduction, // Only use secure in production
+        secure: isProduction, // Use secure cookies only in HTTPS/Production
         sameSite: 'lax'
     }
-}))
+}));
 
 app.use((req, res, next) => {
-    // Always set res.locals from session - this ensures nav bar works correctly
+    // Nav bar state management
     if (req.session && req.session.isLoggedIn) {
         res.locals.isLoggedIn = true;
         res.locals.user = req.session.user || null;
     } else {
         res.locals.isLoggedIn = false;
         res.locals.user = null;
-        
     }
     next();
-})
+});
 
-app.use(authRouter)
-app.use(userRouter)
-app.use(hostRouter)
+// Routes
+app.use(authRouter);
+app.use(userRouter);
+app.use(hostRouter);
 
+// 404 Handler
 app.use(error.showError);
 
 // Global error handling middleware
@@ -100,29 +90,15 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something went wrong!');
 });
 
-// Start server
-const startServer = async () => {
-    await connectDB();
-    
-    // Use dynamic port for Vercel
+// ENVIRONMENT-SPECIFIC STARTUP
+if (process.env.NODE_ENV !== 'production') {
+    // Only run the server listener locally. 
+    // Vercel manages the listener on its own infrastructure.
     const PORT = process.env.PORT || 3004;
-    
-    const server = app.listen(PORT, () => {
+    app.listen(PORT, () => {
         console.log(`SERVER RUNNING AT http://localhost:${PORT}`);
     });
-    
-    // Graceful shutdown
-    process.on('SIGTERM', () => {
-        console.log('SIGTERM received, shutting down gracefully...');
-        server.close(() => {
-            mongoose.connection.close(false, () => {
-                console.log('Server closed');
-                process.exit(0);
-            });
-        });
-    });
-};
+}
 
-startServer();
-
+// CRITICAL: Export the app for Vercel's Serverless Functions
 module.exports = app;
