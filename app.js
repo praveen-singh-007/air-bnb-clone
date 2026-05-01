@@ -34,6 +34,7 @@ mongoose.connect(DB_URL, {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
+    bufferCommands: false,
 })
 .then(() => console.log("Connected to Mongoose"))
 .catch(err => console.error("MongoDB connection error:", err.message));
