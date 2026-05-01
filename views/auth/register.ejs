@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Airbnb</title>
+    <style>
+        body { 
+            font-family: 'Circular', -apple-system, system-ui, Roboto, sans-serif; 
+            background-color: #f7f7f7; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 40px 0; 
+        }
+        .register-card { 
+            background: white; 
+            width: 100%; 
+            max-width: 560px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 28px rgba(0,0,0,0.12); 
+            overflow: hidden; 
+        }
+        .header { 
+            border-bottom: 1px solid #ebebeb; 
+            padding: 20px; 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 16px; 
+            color: #222; 
+        }
+        .content { padding: 32px; }
+        .welcome-text { font-size: 26px; font-weight: 600; margin-bottom: 8px; color: #222; }
+        .sub-text { font-size: 14px; color: #717171; margin-bottom: 24px; }
+        
+        /* Error Box Styling */
+        .error-container { 
+            background-color: #fff8f6; 
+            border: 1px solid #c13515; 
+            padding: 16px; 
+            border-radius: 8px; 
+            margin-bottom: 24px; 
+        }
+        .error-list { margin: 0; padding-left: 20px; color: #c13515; font-size: 14px; }
+
+        .name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 12px; color: #717171; margin-bottom: 4px; margin-left: 4px; font-weight: 600; }
+        
+        input { 
+            width: 100%; 
+            padding: 14px 12px; 
+            border: 1px solid #b0b0b0; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            color: #222; 
+        }
+        input:focus { outline: 2px solid #222; border-color: transparent; }
+
+        /* Role Selection Styling */
+        .role-title { font-size: 14px; font-weight: 600; margin: 20px 0 10px; color: #222; }
+        .role-selection { display: flex; gap: 12px; margin-bottom: 20px; }
+        .role-option { flex: 1; position: relative; }
+        .role-option input[type="radio"] { position: absolute; opacity: 0; }
+        .role-label { 
+            display: block; text-align: center; padding: 12px; border: 1px solid #b0b0b0; 
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; 
+        }
+        .role-option input[type="radio"]:checked + .role-label { 
+            border: 2px solid #222; background-color: #f7f7f7; 
+        }
+
+        /* Terms & Checkbox */
+        .terms-container { display: flex; gap: 12px; margin-top: 24px; align-items: flex-start; cursor: pointer; }
+        .terms-text { font-size: 13px; color: #717171; line-height: 1.5; }
+
+        .submit-btn { 
+            width: 100%; 
+            background: linear-gradient(to right, #E61E4D 0%, #E31C5F 50%, #D70466 100%); 
+            color: white; border: none; padding: 14px; border-radius: 8px; 
+            font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 24px; 
+        }
+        .submit-btn:hover { opacity: 0.95; }
+
+        /* Professional Footer Divider */
+        .divider { 
+            display: flex; align-items: center; text-align: center; 
+            margin: 24px 0; font-size: 12px; color: #717171; 
+            text-transform: uppercase; letter-spacing: 0.5px; 
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #ddd; }
+        .divider:not(:empty)::before { margin-right: 1em; }
+        .divider:not(:empty)::after { margin-left: 1em; }
+
+        .login-prompt { text-align: center; font-size: 14px; color: #222; }
+        .login-link { color: #222; font-weight: 600; text-decoration: underline; margin-left: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="register-card">
+        <div class="header">Sign-Up</div>
+        <div class="content">
+            <div class="welcome-text">Create your profile</div>
+            <p class="sub-text">Join the community to start booking or hosting.</p>
+
+            <%- include('../partials/errorMsg.ejs', {errors: errors}) %>
+
+            <form action="/register" method="POST" novalidate>
+                <div class="name-grid">
+                    <div class="form-group">
+                        <label>First name</label>
+                        <input type="text" name="firstName" value="<%= oldInput.firstName %>" placeholder="First Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Last name</label>
+                        <input type="text" name="lastName" value="<%= oldInput.lastName %>" placeholder="Last Name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email address</label>
+                    <input type="email" name="email" value="<%= oldInput.email %>" placeholder="Email">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" value="<%= oldInput.password %>" placeholder="At least 8 characters">
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirm_password" placeholder="Repeat password">
+                </div>
+
+                <p class="role-title">Account Type</p>
+                <div class="role-selection">
+                    <div class="role-option">
+                        <input type="radio" name="userType" value="guest" id="guest" <%= oldInput.userType === 'guest' ? 'checked' : '' %>>
+                        <label for="guest" class="role-label">Guest</label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" name="userType" value="host" id="host" <%= oldInput.userType === 'host' ? 'checked' : '' %>>
+                        <label for="host" class="role-label">Host</label>
+                    </div>
+                </div>
+
+                <label class="terms-container">
+                    <input type="checkbox" name="terms" style="width: 20px; height: 20px;" required>
+                    <span class="terms-text">
+                        I agree to Airbnb's <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>.
+                    </span>
+                </label>
+
+                <button type="submit" class="submit-btn">Agree and continue</button>
+            </form>
+
+            <div class="divider">or</div>
+
+            <div class="login-prompt">
+                Already have an account? <a href="/login" class="login-link">Log in</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

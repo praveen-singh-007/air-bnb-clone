@@ -1,0 +1,242 @@
+/* --- Airbnb Design System --- */
+
+/* 1. Global Reset & Typography */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+    color: #222222;
+    background-color: #ffffff;
+}
+h1 {
+    display: block;
+    font-size: 2em;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+    unicode-bidi: isolate;
+}
+/* 2. Navigation Styling */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 80px;
+    background: white;
+    border-bottom: 1px solid #ebebeb;
+}
+
+.logo {
+    color: #FF385C;
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #222222;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 15px;
+    border-radius: 20px;
+    transition: background 0.3s;
+}
+
+.nav-links a:hover {
+    background-color: #f7f7f7;
+}
+
+/* 3. Layout Containers */
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(35vh - 80px);
+    text-align: center;
+}
+
+.container, .host-container {
+    max-width: 600px;
+    margin: 60px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+}
+
+/* Card style used for Hosting/Contact forms */
+.card-view {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    background-color: #ffffff;
+}
+
+.host-bg { background-color: #f7f7f7; } /* Specific for Host page background */
+
+/* 4. Forms & Inputs */
+.form-group { margin-bottom: 20px; }
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #B0B0B0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border: 2px solid #222222;
+}
+
+/* 5. Buttons */
+.submit-btn {
+    background-color: #FF385C;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+}
+
+.submit-btn:hover { background-color: #E31C5F; }
+
+.dark-btn { background-color: #222222; } /* For Contact page button */
+
+/* 6. Status & Animation (Success/404/Redirect) */
+.status-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.check-icon {
+    width: 80px; height: 80px;
+    background-color: #00A699; color: white;
+    border-radius: 50%; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 40px; margin: 0 auto 24px auto;
+}
+
+.loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #FF385C;
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.brand-color { color: #FF385C; }
+.success-color { color: #00A699; }
+.muted-text { color: #717171; }
+
+/* --- Listing Details Card --- */
+.listing-card {
+    max-width: 450px;
+    margin: 40px auto;
+    border: 1px solid #DDDDDD;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12); /* Matches your existing card-view shadow */
+    background-color: #ffffff;
+}
+
+.listing-img {
+    width: 100%;
+    height: 250px;
+    background-color: #f7f7f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #717171;
+}
+
+.listing-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.listing-content {
+    padding: 24px;
+}
+
+.listing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #DDDDDD;
+    text-transform: uppercase;
+    color: #222222;
+}
+
+.price-tag {
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.location-text {
+    color: #717171; /* Matches your muted-text color */
+    margin-bottom: 16px;
+}
+
+.card-footer-btns {
+    display: flex; 
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Update the container for listing pages */
+.listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    padding: 20px 80px; /* Aligns with nav padding */
+}
+
+.book-btn:hover {
+    background-color: #E31C5F; /* Slightly darker shade on hover */
+}
+
+.book-btn:active {
+    transform: scale(0.98); /* Subtle "click" feel */
+}

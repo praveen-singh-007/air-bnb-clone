@@ -1,0 +1,118 @@
+<%- include('../partials/nav.ejs') %>
+
+<% 
+    // Logic to check if already booked
+    const isAlreadyBooked = isLoggedIn && user && user.bookings && user.bookings.some(b => 
+        (b.home ? b.home.toString() : b.toString()) === home._id.toString()
+    );
+%>
+
+<div class="container" style="max-width: 1100px; margin: 40px auto; padding: 0 20px; font-family: sans-serif;">
+    <!-- Back Button -->
+    <a href="/" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #222222; font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 8px; transition: background 0.2s ease; cursor: pointer;" onmouseover="this.style.background='#f7f7f7'" onmouseout="this.style.background='transparent'">
+        <span style="font-size: 18px;">&larr;</span> Back
+    </a>
+
+    <!-- Header -->
+    <div style="margin-bottom: 24px; margin-top: 16px;">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 8px;"><%= home.houseName %></h1>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <p style="text-decoration: underline; font-weight: 600; font-size: 14px; color: #222222;"><%= home.location %></p>
+            <% if (isAlreadyBooked) { %>
+                <span style="background: #4CAF50; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase;">✓ You have booked this home</span>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Main Image -->
+    <div style="width: 100%; height: 500px; border-radius: 12px; overflow: hidden; margin-bottom: 32px;">
+        <img src="<%= home.imageUrl %>" style="width: 100%; height: 100%; object-fit: cover;" alt="Property Image">
+    </div>
+
+    <!-- Dynamic Grid: If booked, 1 column. If not, 2 columns. -->
+    <div style="display: grid; grid-template-columns: <%= isAlreadyBooked ? '1fr' : '1.5fr 1fr' %>; gap: 60px;">
+        
+        <!-- Left Column: Details -->
+        <div>
+            <div style="padding-bottom: 24px; border-bottom: 1px solid #DDDDDD; margin-bottom: 24px;">
+                <h2 style="font-size: 22px; font-weight: 600;">Property Highlights</h2>
+                <p style="color: #717171; margin-top: 8px;">Facing Direction: <strong><%= home.facing || 'Not specified' %></strong></p>
+            </div>
+
+            <div style="padding-bottom: 24px; border-bottom: 1px solid #DDDDDD; margin-bottom: 24px;">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">Description</h3>
+                <p style="line-height: 1.6; color: #222222; font-size: 16px;">
+                    <%= home.description || 'No description provided for this beautiful home.' %>
+                </p>
+            </div>
+
+            <div style="padding-bottom: 24px; border-bottom: 1px solid #DDDDDD; margin-bottom: 24px;">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">Special Instructions</h3>
+                <div style="display: flex; align-items: flex-start; gap: 12px; background: #F7F7F7; padding: 16px; border-radius: 12px;">
+                    <span style="font-size: 20px;">ℹ️</span>
+                    <p style="margin: 0; font-size: 14px; color: #484848; line-height: 1.4;">
+                        <%= home.instructions || 'Standard check-in procedures apply.' %>
+                    </p>
+                </div>
+            </div>
+
+            <div>
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">Contact Information</h3>
+                <p style="font-size: 15px;">Email: <span style="color: #FF385C; font-weight: 600;"><%= home.contactEmail || 'Available after booking' %></span></p>
+            </div>
+        </div>
+
+        <!-- Right Column: Sticky Sidebar (Hidden if booked) -->
+        <% if (!isAlreadyBooked) { %>
+        <div style="position: sticky; top: 40px; height: fit-content;">
+            <div style="border: 1px solid #DDDDDD; padding: 24px; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.12) 0px 6px 16px;">
+                <div style="margin-bottom: 24px;">
+                    <span style="font-size: 22px; font-weight: 700;">$<%= home.price %></span>
+                    <span style="color: #717171;"> / night</span>
+                </div>
+
+                <!-- Booking Form -->
+                <form action="/post-bookings" method="POST" style="display: flex; flex-direction: column; gap: 0; margin-bottom: 16px; border: 1px solid #B0B0B0; border-radius: 8px; overflow: hidden;">
+                    <input type="hidden" name="homeID" value="<%= home._id %>">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #B0B0B0;">
+                        <div style="padding: 10px; border-right: 1px solid #B0B0B0;">
+                            <label style="display: block; font-size: 10px; font-weight: 800; text-transform: uppercase;">Check-in</label>
+                            <input type="date" name="startDate" required style="width: 100%; border: none; font-size: 14px; padding-top: 4px; outline: none; background: transparent;">
+                        </div>
+                        <div style="padding: 10px;">
+                            <label style="display: block; font-size: 10px; font-weight: 800; text-transform: uppercase;">Nights</label>
+                            <input type="number" name="duration" min="1" value="1" required style="width: 100%; border: none; font-size: 14px; padding-top: 4px; outline: none; background: transparent;">
+                        </div>
+                    </div>
+                    <div style="padding: 10px;">
+                        <label style="display: block; font-size: 10px; font-weight: 800; text-transform: uppercase;">Special Requests</label>
+                        <textarea name="notes" placeholder="Any requests?" style="width: 100%; border: none; font-size: 14px; padding-top: 4px; outline: none; background: transparent; resize: none; font-family: inherit;"></textarea>
+                    </div>
+                    <button type="submit" style="background: #FF385C; color: white; border: none; padding: 14px; font-size: 16px; font-weight: 600; cursor: pointer; border-radius: 0;">
+                        Reserve
+                    </button>
+                </form>
+
+                <!-- Favourites -->
+                <% const isFavourite = isLoggedIn && user && user.favourites && user.favourites.some(fav => fav.toString() === home._id.toString()); %>
+                <% if (isLoggedIn && user) { %>
+                    <form action="<%= isFavourite ? '/remove-favourites/' + home._id : '/favourites' %>" method="POST">
+                        <% if (!isFavourite) { %><input type="hidden" name="homeID" value="<%= home._id %>"><% } %>
+                        <button type="submit" style="width: 100%; background: paleturquoise; color: #222222; border: 1px solid #222222; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 12px;">
+                            <%= isFavourite ? '❤️ Added to Favourites' : '🤍 Add to Favourites' %>
+                        </button>
+                    </form>
+                <% } %>
+
+                <!-- Rules Download -->
+                <% if (home.rulesUrl) { %>
+                    <a href="/get-rules/<%= home._id %>" style="display: block; width: 100%; background: #F7F7F7; color: #222222; border: 1px solid #DDDDDD; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; text-decoration: none;">
+                        📄 Download House Rules
+                    </a>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+
+    </div>
+</div>

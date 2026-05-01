@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submission Successful</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="status-container">
+        <div class="check-icon">✓</div>
+        <h1>Your home is listed!</h1>
+        <p>Details submitted successfully. You're ready to host.</p>
+        
+        <div>
+            <div class="loader"></div>
+            <span class="redirect-text">Redirecting to your dashboard...</span>
+        </div>
+    </div>
+
+    <script>
+        // Simulates a redirect after 3 seconds
+        setTimeout(function() {
+            // Replace '#' with the filename of your user home page
+            window.location.href = "/"; 
+            console.log("Redirecting...");
+        }, 1500);
+    </script>
+
+</body>
+</html>

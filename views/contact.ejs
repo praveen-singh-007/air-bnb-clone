@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Support</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- <nav>
+        <a href="/" class="logo">airbnb</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/host">Host</a>
+        </div>
+    </nav> -->
+    <%- include('./partials/nav.ejs') %>
+
+    <div class="container">
+        <h2>How can we help?</h2>
+        <p style="color: #717171; margin-bottom: 30px;">Describe your query and we'll get back to you.</p>
+        
+        <form action="/contact" method="POST">
+            <div class="form-group">
+                <label for="query">Message</label>
+                <textarea id="query" name="userQuery" placeholder="Tell us what's happening..." required></textarea>
+            </div>
+            <button type="submit" class="submit-btn" style="margin-bottom: 40px;">Send request</button>
+        </form>
+
+        <hr style="border: 0; border-top: 1px solid #EBEBEB; margin-bottom: 30px;">
+
+        <h3>Recent Enquiries</h3>
+            <% if (userQueries.length > 0) { %>
+                <div class="queries-list">
+                    <% userQueries.forEach(item => { %>
+                        <div style="padding: 15px; border: 1px solid #DDDDDD; border-radius: 8px; margin-bottom: 15px; background: #f9f9f9; position: relative;">
+                            <!-- Date Badge -->
+                            <div style="font-size: 11px; color: #717171; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">
+                                Sent on <%= item.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                            </div>
+                            
+                            <p style="margin: 0 0 10px 0; font-size: 0.95rem; color: #222; line-height: 1.4;">
+                                <%= item.userQuery %>
+                            </p>
+                            
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="width: 8px; height: 8px; background: #FFB400; border-radius: 50%;"></span>
+                                <small style="color: #717171; font-weight: 600;">Status: Pending review</small>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <p class="muted-text">No previous queries found.</p>
+            <% } %>
+    </div>
+</body>
+</html>

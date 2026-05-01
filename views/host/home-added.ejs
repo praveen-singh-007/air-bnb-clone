@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Your Home</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <%- include('../partials/nav.ejs') %>
+
+<div class="host-container">
+    <h2><%= editing ? 'Edit your listing' : 'List your home' %></h2>
+    <p class="subtitle">
+        <%= editing ? 'Update the details of your property.' : 'Tell us a bit about your place to get started.' %>
+    </p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div style="background: #ffebe9; border: 1px solid #cc0000; color: #cc0000; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form action="/host/<%= editing ? 'edit-home' : 'home-added' %>" method="POST" enctype="multipart/form-data">
+        
+        <!-- SECTION 1: PHOTO UPLOAD -->
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 10px;">Property Photo <span style="color: #ff385c;">*</span></label>
+            
+            <div style="border: 2px dashed #DDDDDD; border-radius: 12px; padding: 20px; text-align: center; background: #F7F7F7; transition: all 0.3s;" id="photo-drop-zone">
+                
+                <img id="photo-preview" 
+                    src="<%= editing ? home.imageURL : '#' %>" 
+                    style="display: <%= editing ? 'block' : 'none' %>; width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;" 
+                    alt="Preview">
+
+                <div id="photo-placeholder" style="display: <%= editing ? 'none' : 'block' %>;">
+                    <span style="font-size: 40px; color: #717171;">📸</span>
+                    <p style="margin: 10px 0; color: #222; font-weight: 600;">Click to upload a photo</p>
+                </div>
+
+                <input 
+                    type="file" 
+                    id="photo-input" 
+                    name="image" 
+                    accept="image/*" 
+                    <%= editing ? '' : 'required' %>
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none;"
+                >
+                                        
+                <button type="button" onclick="document.getElementById('photo-input').click()" 
+                        style="background: white; border: 1px solid #222; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px;">
+                    <%= editing ? 'Change Photo' : 'Select Photo' %>
+                </button>
+            </div>
+        </div>
+
+        <!-- SECTION 2: PDF RULES UPLOAD -->
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 10px;">Property Rules (PDF) <span style="color: #ff385c;">*</span></label>
+            
+            <div style="border: 2px dashed #DDDDDD; border-radius: 12px; padding: 20px; text-align: center; background: #F7F7F7; transition: all 0.3s;" id="rules-drop-zone">
+                
+                <div id="rules-preview" style="display: none; margin-bottom: 15px;">
+                    <span style="font-size: 40px;">✅</span>
+                    <p id="rules-filename" style="font-weight: 600; color: #008489;"></p>
+                </div>
+
+                <div id="rules-placeholder">
+                    <span style="font-size: 40px; color: #717171;">📄</span>
+                    <p style="margin: 10px 0; color: #222; font-weight: 600;">Click to upload rules (.pdf only)</p>
+                </div>
+
+                <input 
+                    type="file" 
+                    id="rules-input" 
+                    name="rules" 
+                    accept="application/pdf" 
+                    <%= editing ? '' : 'required' %>
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none;"
+                >
+                                        
+                <button type="button" onclick="document.getElementById('rules-input').click()" 
+                        style="background: white; border: 1px solid #222; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px;">
+                    <%= editing ? 'Change Document' : 'Select Document' %>
+                </button>
+            </div>
+        </div>
+
+        <!-- OTHER FORM FIELDS -->
+        <div class="form-group">
+            <label for="house-name">House Name <span style="color: #ff385c;">*</span></label>
+            <input type="text" id="house-name" name="houseName" value="<%= editing ? home.houseName : '' %>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="location">Location <span style="color: #ff385c;">*</span></label>
+            <input type="text" id="location" name="location" value="<%= editing ? home.location : '' %>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="price">Price per night ($) <span style="color: #ff385c;">*</span></label>
+            <input type="number" id="price" name="price" value="<%= editing ? home.price : '' %>" min="1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Brief Description <span style="color: #ff385c;">*</span></label>
+            <input type="text" id="description" name="description" value="<%= editing ? home.description : '' %>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="direction">Facing Direction <span style="color: #ff385c;">*</span></label>
+            <input type="text" id="direction" name="facing" value="<%= editing ? home.facing : '' %>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="instructions">Special Instructions <span style="color: #ff385c;">*</span></label>
+            <input type="text" id="instructions" name="instructions" value="<%= editing ? home.instructions : '' %>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="contact">Owner Contact Details <span style="color: #ff385c;">*</span></label>
+            <input type="email" id="contact" name="contactEmail" value="<%= editing ? home.contactEmail : '' %>" required>
+        </div>
+
+        <% if (editing) { %>
+            <input type="hidden" name="homeId" value="<%= home._id %>">
+        <% } %>
+
+        <button type="submit" class="submit-btn" style="margin-top: 20px;">
+            <%= editing ? 'Update Listing' : 'Continue' %>
+        </button>
+    </form>
+</div>
+
+<script>
+    // PHOTO LOGIC
+    const photoInput = document.getElementById('photo-input');
+    const photoPreview = document.getElementById('photo-preview');
+    const photoPlaceholder = document.getElementById('photo-placeholder');
+    const photoDropZone = document.getElementById('photo-drop-zone');
+
+    photoInput.onchange = (evt) => {
+        const [file] = photoInput.files;
+        if (file) {
+            photoPlaceholder.style.display = 'none';
+            photoPreview.style.display = 'block';
+            photoPreview.src = URL.createObjectURL(file);
+            photoDropZone.style.borderColor = '#008489'; 
+        }
+    };
+
+    // RULES LOGIC
+    const rulesInput = document.getElementById('rules-input');
+    const rulesPreview = document.getElementById('rules-preview');
+    const rulesPlaceholder = document.getElementById('rules-placeholder');
+    const rulesFilename = document.getElementById('rules-filename');
+    const rulesDropZone = document.getElementById('rules-drop-zone');
+
+    rulesInput.onchange = (evt) => {
+        const [file] = rulesInput.files;
+        if (file) {
+            rulesPlaceholder.style.display = 'none';
+            rulesPreview.style.display = 'block';
+            rulesFilename.innerText = file.name; // Show PDF name
+            rulesDropZone.style.borderColor = '#008489'; 
+        }
+    };
+</script>
+
+</body>
+</html>

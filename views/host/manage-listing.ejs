@@ -1,0 +1,87 @@
+<%- include('../partials/nav.ejs') %>
+
+<div class="manage-container" style="
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 40px 20px;
+    font-family: sans-serif;"> 
+    
+    <h1 style="text-align: center; margin-bottom: 40px; font-weight: 800; font-size: 32px;">Manage Your Listings</h1>
+    
+    <div style="
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+        gap: 32px; 
+        justify-content: center;">
+        
+        <% if (homes.length > 0) { %>
+            <% homes.forEach((home) => { %>
+                <div class="listing-card" style="
+                    border: 1px solid #ebebeb; 
+                    border-radius: 12px; 
+                    overflow: hidden; 
+                    transition: box-shadow 0.3s ease;
+                    display: flex;
+                    flex-direction: column;"
+                    onmouseover="this.style.boxShadow='0 6px 16px rgba(0,0,0,0.12)'"
+                    onmouseout="this.style.boxShadow='none'">
+                    
+                    <div style="height: 200px; overflow: hidden;">
+                <!-- Point to the home.imageUrl stored in DB instead of Picsum -->
+                <img src="<%= home.imageUrl %>" 
+                    style="width: 100%; height: 100%; object-fit: cover;" 
+                    alt="<%= home.houseName %>">
+            </div>
+                    
+                    <div style="padding: 20px; display: flex; flex-direction: column; flex-grow: 1;">
+                        <h3 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 600;"><%= home.houseName %></h3>
+                        <p style="color: #717171; margin: 0 0 12px 0; font-size: 14px;"><%= home.location %></p>
+                        <p style="margin: auto 0 16px 0; font-size: 16px;">
+                            <strong>$<%= home.price %></strong> <span style="font-weight: 400; color: #717171;">/ night</span>
+                        </p>
+
+                        <div style="display: flex; gap: 12px;">
+                            <a href="/host/edit-home/<%= home._id %>?editing=true" style="
+                                flex: 1;
+                                text-align: center;
+                                background: #222;
+                                color: white;
+                                padding: 10px;
+                                border-radius: 8px;
+                                text-decoration: none;
+                                font-size: 14px;
+                                font-weight: 600;
+                                transition: background 0.2s;"
+                                onmouseover="this.style.background='#000'"
+                                onmouseout="this.style.background='#222'">Edit</a>
+                            <form action="/host/delete-home/<%=home._id%>" method = "POST">
+
+                                <button type ="submit" style="
+                                flex: 1;
+                                background: white;
+                                color: #c13515;
+                                border: 1px solid #c13515;
+                                padding: 10px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 600;
+                                transition: background 0.2s;"
+                                onmouseover="this.style.background='#fff8f6'"
+                                onmouseout="this.style.background='#white'">Delete</button>
+
+
+                            </form>
+                            
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px;">
+                <p style="color: #717171; font-size: 18px;">No listings found. Start by adding one!</p>
+                <a href="/host/home-added" style="color: #FF385C; font-weight: 600; text-decoration: none;">Create a listing</a>
+            </div>
+        <% } %>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Listings - Airbnb</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <!-- <nav>
+        <a href="/" class="logo">airbnb</a>
+        <div class="nav-links">
+            <a href="/host">Switch to hosting</a>
+            <a href="/contact">Help</a>
+            <a href="#" style="border: 1px solid #DDDDDD; padding: 8px 12px;">Login</a>
+        </div>
+    </nav> -->
+    <%- include('../partials/nav.ejs') %>
+
+    <div class="hero">
+        <h1>Welcome <span class="brand-color">home</span>.</h1>
+        <p>Whether you're visiting or hosting, you belong anywhere.</p>
+    </div>
+
+    <div class="container" style="max-width: 1200px;"> 
+        <h2 style="text-align: center; margin-bottom: 40px;">All Listings</h2>
+        
+        <% if (homes.length > 0) { %>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+                
+                <% homes.forEach((home, index) => { %>
+                    <div class="listing-card" style="margin: 0;">
+                        <div class="listing-img" style="height: 250px; width: 100%; overflow: hidden; border-radius: 12px;">
+                            <img src="<%= home.imageUrl %>" 
+                                alt="House Image" 
+                                style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                        </div>
+                                                
+                        <div class="listing-content">
+                            <div class="listing-header">
+                                <span class="badge">Active</span>
+                                <div class="price-tag">$<%= home.price %><span style="font-weight: 400; font-size: 14px;"> / night</span></div>
+                            </div>
+
+                            <a href="/home-list/<%= home._id %>" style="
+                                display: block;
+                                text-align: center;
+                                background-color: #F7F7F7;
+                                color: #222222;
+                                text-decoration: none;
+                                padding: 8px;
+                                margin: 12px 0;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                border: 1px solid #DDDDDD;
+                                transition: background 0.2s ease;"
+                                onmouseover="this.style.background='#EEEEEE'"
+                                onmouseout="this.style.background='#F7F7F7'">
+                                View Details
+                            </a>
+                            
+                            <h3 style="margin: 0 0 4px 0;"><%= home.houseName %></h3>
+                            <p class="location-text" style="margin-bottom: 15px;"><%= home.location %></p>
+
+                            <!-- Replace the <a> tag with this Form -->
+                            <form action="/bookings" method="POST">
+                                <!-- Pass the ID hidden so the controller can read it from req.body -->
+                                <input type="hidden" name="homeID" value="<%= home._id %>">
+                                
+                                <button type="submit" class="book-btn" style="
+                                    display: block;
+                                    width: 100%;
+                                    text-align: center;
+                                    background-color: #FF385C;
+                                    color: #ffffff;
+                                    cursor: pointer;
+                                    padding: 8px;
+                                    margin: 12px 0;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    border: 1px solid #DDDDDD;
+                                    transition: background 0.2s ease;">
+                                    Book Now
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <% }) %>
+
+            </div>
+        <% } else { %>
+            <p style="text-align: center;" class="muted-text">No homes registered yet.</p>
+        <% } %>
+    </div>
+</body>
+</html>

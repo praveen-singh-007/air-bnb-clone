@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Airbnb</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/nav.ejs') %>
+
+    <div class="hero">
+        <h1>Trip <span class="brand-color">Details</span>.</h1>
+        <p>Your upcoming stays and reserved dates.</p>
+    </div>
+
+    <div class="container" style="max-width: 1200px;"> 
+        <h2 style="text-align: center; margin-bottom: 40px;">Reserved Homes</h2>
+        
+        <% if (bookedHomes.length > 0) { %>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+                
+                <% bookedHomes.forEach((booking) => { %>
+                    <!-- Note: home data is now inside booking.home -->
+                    <div class="listing-card" style="margin: 0; border: 1px solid #DDDDDD; border-radius: 12px; overflow: hidden;">
+                        
+                        <div class="listing-img" style="height: 220px; width: 100%; overflow: hidden;">
+                            <img src="<%= booking.home.imageUrl %>" 
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                                                
+                        <div class="listing-content" style="padding: 16px;">
+                            <div class="listing-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span class="badge" style="background-color: #4CAF50; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">Confirmed</span>
+                                <div class="price-tag" style="font-weight: 700;">$<%= booking.home.price %><span style="font-weight: 400; font-size: 13px; color: #717171;"> / night</span></div>
+                            </div>
+
+                            <h3 style="margin: 0 0 4px 0; font-size: 18px;"><%= booking.home.houseName %></h3>
+                            <p style="color: #717171; font-size: 14px; margin-bottom: 12px;"><%= booking.home.location %></p>
+
+                            <!-- NEW: Trip Details Section -->
+                            <div style="background: #F7F7F7; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px dashed #DDD;">
+                                <p style="margin: 0; font-size: 13px;">📅 <strong>Check-in:</strong> <%= new Date(booking.startDate).toDateString() %></p>
+                                <p style="margin: 4px 0; font-size: 13px;">🌙 <strong>Duration:</strong> <%= booking.duration %> Nights</p>
+                                <% if(booking.notes) { %>
+                                    <p style="margin: 0; font-size: 12px; color: #555; font-style: italic;">"<%= booking.notes %>"</p>
+                                <% } %>
+                            </div>
+
+                            <div style="display: flex; gap: 10px;">
+                                <a href="/home-list/<%= booking.home._id %>" style="flex: 1; text-align: center; background: white; color: #222; text-decoration: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid #222;">
+                                    View House
+                                </a>
+                                
+                                <a href="/download-rules/<%= booking.home._id %>" style="flex: 1; text-align: center; background: #222; color: #fff; text-decoration: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600;">
+                                    Rules PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+
+            </div>
+        <% } else { %>
+            <div style="text-align: center; padding: 80px 0;">
+                <p style="color: #717171; font-size: 18px;">You haven't made any bookings yet.</p>
+                <a href="/" style="color: #FF385C; font-weight: 600; text-decoration: none;">Explore top-rated homes</a>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

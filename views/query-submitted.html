@@ -1,0 +1,33 @@
+`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Logged</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="status-container">
+        <div class="check-icon">✓</div>
+        <h1>Request logged</h1>
+        <p>Thank you. We have received your message.</p>
+        
+        <div>
+            <div class="loader"></div>
+            <span class="redirect-text">Redirecting to home...</span>
+        </div>
+
+        <a href="/" class="home-link">Return Home Now</a>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            window.location.href = "/"; 
+        }, 1500);
+    </script>
+
+</body>
+</html>
+`
