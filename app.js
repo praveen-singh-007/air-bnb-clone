@@ -1,80 +1,104 @@
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
 require('dotenv').config();
-const express = require("express")
-const {userRouter} = require("./routes/userRouter")
-const {hostRouter} = require("./routes/hostRouter")
-const {authRouter} = require("./routes/authRouter")
-const error = require("./controllers/error404")
+const express = require("express");
+const { userRouter } = require("./routes/userRouter");
+const { hostRouter } = require("./routes/hostRouter");
+const { authRouter } = require("./routes/authRouter");
+const error = require("./controllers/error404");
 
 const path = require("path");
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 
-// const multer = require('multer')
-
-const app = express()
-const session = require("express-session")
+const app = express();
+const session = require("express-session");
 const MongodbStore = require("connect-mongodb-session")(session);
 
-app.set('view engine', 'ejs')
-app.set('views', 'views')
+// Vercel sits behind a proxy, this is required for 'secure' cookies to work
+app.set('trust proxy', 1);
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname, 'public')))
-app.use(express.urlencoded({ extended: true }))
-
-app.use("/uploads", express.static(path.join(__dirname, 'uploads')))
-app.use("/host/uploads", express.static(path.join(__dirname, 'uploads')))
-app.use("/home-list/uploads", express.static(path.join(__dirname, 'uploads')))
-
+// Legacy support for local uploads - Optional for Cloud version
+app.use("/uploads", express.static(path.join(__dirname, 'uploads')));
+app.use("/host/uploads", express.static(path.join(__dirname, 'uploads')));
+app.use("/home-list/uploads", express.static(path.join(__dirname, 'uploads')));
 
 const DB_URL = process.env.MONGODB_URI;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'AirBnb';
+
+// Connect to MongoDB immediately
+mongoose.connect(DB_URL, {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+})
+.then(() => console.log("Connected to Mongoose"))
+.catch(err => console.error("MongoDB connection error:", err.message));
 
 const store = new MongodbStore({
     uri: DB_URL,
-    collection: 'sessions'
+    collection: 'sessions',
+    expires: 1000 * 60 * 60 * 24 * 7 // 1 week
 });
 
 store.on('error', function(error) {
     console.log('Session store error:', error);
 });
 
+// Determine if running in production (Vercel sets this automatically)
+const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+
 app.use(session({
-    secret: 'AirBnb',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: store
-}))
+    store: store,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        httpOnly: true,
+        secure: isProduction, // Use secure cookies only in HTTPS/Production
+        sameSite: 'lax'
+    }
+}));
 
 app.use((req, res, next) => {
-    // Always set res.locals from session - this ensures nav bar works correctly
+    // Nav bar state management
     if (req.session && req.session.isLoggedIn) {
         res.locals.isLoggedIn = true;
         res.locals.user = req.session.user || null;
     } else {
         res.locals.isLoggedIn = false;
         res.locals.user = null;
-        
     }
     next();
-})
+});
 
-app.use(authRouter)
-app.use(userRouter)
-app.use(hostRouter)
+// Routes
+app.use(authRouter);
+app.use(userRouter);
+app.use(hostRouter);
 
+// 404 Handler
 app.use(error.showError);
 
-const PORT = 3004
+// Global error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Global error:', err);
+    res.status(500).send('Something went wrong!');
+});
 
-mongoose.connect(DB_URL).then(() => {
-    console.log("Connected to Mongoose")
+// ENVIRONMENT-SPECIFIC STARTUP
+if (process.env.NODE_ENV !== 'production') {
+    // Only run the server listener locally. 
+    // Vercel manages the listener on its own infrastructure.
+    const PORT = process.env.PORT || 3004;
     app.listen(PORT, () => {
-        console.log(`SERVER RUNNING AT http://localhost:${PORT}`)
-    })
-}).catch(err => {
-    console.log("Error occured", err)
-})
+        console.log(`SERVER RUNNING AT http://localhost:${PORT}`);
+    });
+}
 
+// CRITICAL: Export the app for Vercel's Serverless Functions
 module.exports = app;
